@@ -4,13 +4,15 @@ import Prelude
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
+import Network.HTTP.Affjax as AX
 import Control.Monad.Aff (Aff)
-import Control.Monad.Aff.AVar (AVAR)
 import DOM (DOM)
-import Data.List (List)
 import Data.Maybe (Maybe(..))
+import Foreign (setHTML)
+import Network.HTTP.Affjax (AJAX)
 
-data Query a
+
+data ExQuery a
   = GetExternalHtml a
   | EditHtml a
   | Finalize a
@@ -25,21 +27,22 @@ type Element =
   , styles :: String
   }
 
-type State =
+type ExState =
   {
-    hasLoadedHtml :: Boolean
+    loading :: Boolean
   , startEditing :: Maybe Id
   , commitEdit :: Maybe Element
   }
 
-data Output = TextChanged (List Element)
 
--- | Effects
-type Effects eff = (dom :: DOM, avar :: AVAR | eff)
+type Output = Void
+
+-- | ExEffects
+type ExEffects eff = (dom :: DOM, ajax :: AJAX | eff)
 
 -- | The component definition.
-component :: forall eff. H.Component HH.HTML Query Unit Output (Aff (Effects eff))
-component =
+exComponent :: forall eff. H.Component HH.HTML ExQuery Unit Output (Aff (ExEffects eff))
+exComponent =
   H.lifecycleComponent
     { initialState: const initialState
     , render
@@ -50,26 +53,21 @@ component =
     }
   where
 
-  initialState :: State
-  initialState = { hasLoadedHtml: false, startEditing : Nothing, commitEdit : Nothing  }
+  initialState :: ExState
+  initialState = { loading: false, startEditing : Nothing, commitEdit : Nothing  }
 
-  render :: State -> H.ComponentHTML Query
-  render state =
-    HH.div_
-      [ HH.h1_
-          [ HH.text "External Html Component Experiment" ]
-      , HH.div [ HP.ref (H.RefLabel "stage") ] []
-      ]
+  render :: ExState -> H.ComponentHTML ExQuery
+  render = const $ HH.div [ HP.ref (H.RefLabel "stage") ] []
 
-  eval :: Query ~> H.ComponentDSL State Query Output (Aff (Effects eff))
+  eval :: ExQuery ~> H.ComponentDSL ExState ExQuery Output (Aff (ExEffects eff))
   eval = case _ of
     GetExternalHtml next -> do
       H.getHTMLElementRef (H.RefLabel "stage") >>= case _ of
         Nothing -> pure unit
         Just el' -> do
-          -- call for html and insert here // effectfully
-          H.modify (_ { hasLoadedHtml = true })
-          -- create a listener for double click events with in the html
+          response <- H.liftAff $ AX.get ("https://localhost:3001/api/docs/test")
+          H.liftEff $ setHTML el' response.response
+          H.modify (_ { loading = true })
       pure next
 
     EditHtml next -> pure next

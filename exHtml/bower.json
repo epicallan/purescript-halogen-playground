@@ -10,6 +10,7 @@
   ],
   "dependencies": {
     "purescript-console": "^2.0.0",
-    "purescript-halogen": "^1.0.0"
+    "purescript-halogen": "^1.0.0",
+    "purescript-affjax": "^3.0.2"
   }
 }

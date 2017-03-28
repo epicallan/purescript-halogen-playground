@@ -25,4 +25,4 @@ $ bower install
 $ npm run build
 ```
 
-The code will be built as `example.js` in the `externalHtml/dist` directory. Run the runnable by opening the corresponding `index.html`.
+The code will be built as `app.js` in the `exHtml/dist` directory. Run the runnable by opening the corresponding `index.html`.

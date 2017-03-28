@@ -4,12 +4,12 @@ import Prelude
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
-import Network.HTTP.Affjax as AX
+-- import Network.HTTP.Affjax as AX
 import Control.Monad.Aff (Aff)
 import DOM (DOM)
 import Data.Maybe (Maybe(..))
 import Foreign (setHTML)
-import Network.HTTP.Affjax (AJAX)
+-- import Network.HTTP.Affjax (AJAX)
 
 
 data ExQuery a
@@ -38,7 +38,7 @@ type ExState =
 type Output = Void
 
 -- | ExEffects
-type ExEffects eff = (dom :: DOM, ajax :: AJAX | eff)
+type ExEffects eff = (dom :: DOM | eff)
 
 -- | The component definition.
 exComponent :: forall eff. H.Component HH.HTML ExQuery Unit Output (Aff (ExEffects eff))
@@ -65,8 +65,8 @@ exComponent =
       H.getHTMLElementRef (H.RefLabel "stage") >>= case _ of
         Nothing -> pure unit
         Just el' -> do
-          response <- H.liftAff $ AX.get ("https://localhost:3001/api/docs/test")
-          H.liftEff $ setHTML el' response.response
+          -- response <- H.liftAff $ AX.get ("https://localhost:3001/api/docs/test")
+          H.liftEff $ setHTML el' "<p>hello world</p>"
           H.modify (_ { loading = true })
       pure next
 

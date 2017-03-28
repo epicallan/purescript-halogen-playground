@@ -1,14 +1,15 @@
 module Main where
 
 import Prelude
+import Halogen as H
 import Halogen.Aff as HA
+import Halogen.HTML as HH
 import Component (ExEffects, ExQuery, exComponent)
+import Control.Monad.Aff (Aff)
 import Control.Monad.Eff (Eff)
 import Data.Maybe (Maybe(..))
-import Halogen as H
-import Halogen.HTML as HH
 import Halogen.VDom.Driver (runUI)
-import Control.Monad.Aff (Aff)
+-- import Network.HTTP.Affjax (AJAX)
 
 -- | The application state, which in this case will contain the html document ID
 
@@ -37,7 +38,7 @@ ui =
   initialState :: State
   initialState = { documentId: "test" }
 
-  render :: State -> H.ParentHTML Query Query ExSlot (Aff (ExEffects eff))
+  render :: State -> H.ParentHTML Query ExQuery ExSlot (Aff (ExEffects eff))
   render { documentId: id } =
     HH.div_
       [ HH.h1_
